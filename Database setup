@@ -1,0 +1,269 @@
+MySQL
+1. Update and Upgrade Packages
+sudo apt update
+sudo apt upgrade -y
+This ensures your system has the latest package information and security patches.
+________________________________________
+2. Install MySQL Server
+sudo apt install mysql-server -y
+This installs the latest MySQL server package available in Ubuntu’s repository.
+________________________________________
+3. Check MySQL Service Status
+systemctl status mysql
+If not running, start it with:
+sudo systemctl start mysql
+sudo systemctl enable mysql
+________________________________________
+4. Secure the MySQL Installation [OPTIONAL FOR LOCAL]
+Run the included security script:
+sudo mysql_secure_installation
+It will ask you to:
+•	Configure the VALIDATE PASSWORD PLUGIN (you can choose strength level).
+•	Set a root password (if not already set).
+•	Remove anonymous users.
+•	Disallow remote root login.
+•	Remove test database.
+•	Reload privilege tables.
+________________________________________
+5. Log into MySQL
+sudo mysql -u root -p
+Enter the password you set during the secure installation.
+________________________________________
+
+6. Create a Database
+CREATE DATABASE bankappdb;
+________________________________________
+7. Create a User and Grant Privileges
+CREATE USER 'adi'@'localhost' IDENTIFIED BY 'Test@123';
+ALTER USER 'adi'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Test@123'; 
+FLUSH PRIVILEGES;
+
+GRANT ALL PRIVILEGES ON bankappdb.* TO 'adi'@'localhost';
+FLUSH PRIVILEGES;
+--------------------------------------------------------------------------------------------------------------------------------
+CREATE DATABASE test_db;  //using root
+CREATE USER 'aditya'@'localhost' IDENTIFIED BY 'Test@123';
+ALTER USER 'aditya'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Test@123'; 
+FLUSH PRIVILEGES;
+GRANT ALL PRIVILEGES ON test_db.* TO 'aditya'@'localhost';
+
+USE test_db;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role ENUM('Admin', 'User') NOT NULL
+);
+
+GRANT ALL PRIVILEGES ON test_db.* TO 'root'@'localhost';
+
+________________________________________
+8. Test Connection with New User
+Exit MySQL:
+EXIT;
+Then log in with the new user:
+mysql -u myuser -p mydb
+________________________________________
+✅ Now you have a working MySQL database setup on Ubuntu.
+CREATE USER 'adi'@'localhost' IDENTIFIED BY 'Test@123';
+Creates a new MySQL account adi that can log in only from the same machine.
+By default on MySQL 8, this uses the caching_sha2_password auth plugin.
+
+ALTER USER 'adi'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Test@123';
+Changes the auth plugin for adi@localhost to mysql_native_password (keeps the same password).
+
+This is often used to avoid the JDBC error “Public Key Retrieval is not allowed” without adding allowPublicKeyRetrieval=true to your JDBC URL.
+
+Python Project
+1. Setting Up Python Virtual Environment
+1.	Install the Python 3.12 virtual environment package:
+sudo apt install python3.12-venv -y
+
+2.	Create a virtual environment:
+python3 -m venv myenv
+
+3.	Activate the virtual environment:
+source myenv/bin/activate
+
+4.	Install required Python libraries from requirements.txt:
+First, ensure pip is installed:
+sudo apt install python3-pip -y
+Then, install the required libraries:
+pip3 install -r requirements.txt
+2. Installing PostgreSQL
+To install and set up PostgreSQL, follow these steps:
+
+1.	Install PostgreSQL and additional tools:
+sudo apt-get install postgresql postgresql-contrib
+
+2.	Start the PostgreSQL service:
+sudo systemctl start postgresql
+
+3.	Enable PostgreSQL to start on boot:
+sudo systemctl enable postgresql
+
+4.	Setting Up PostgreSQL Database
+1.	Switch to the PostgreSQL user:
+sudo -i -u postgres
+               psql
+
+2.	Create a new PostgreSQL user:
+CREATE USER root WITH PASSWORD 'root';
+
+3.	Create a new PostgreSQL database:
+CREATE DATABASE my_database;
+
+4.	Grant all privileges on the database to the new user:
+GRANT ALL PRIVILEGES ON DATABASE my_database TO root;
+
+5.	Connect to the new database:
+\c my_database
+
+6.	Grant all privileges on the public schema to the user:
+GRANT ALL PRIVILEGES ON SCHEMA public TO root;
+
+7.	Grant create privileges on the database to the user:
+GRANT CREATE ON DATABASE my_database TO root;
+
+Running the Application
+Once the environment and database are set up, you can run the application with the following steps:
+1.	Ensure your virtual environment is activated:
+source myenv/bin/activate
+2.	Run the application:
+python run.py
+
+
+
+
+MongoDB in Dotnet Project Readme File
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+🔹 MySQL
+Connect:
+mysql -u root -p
+Switch DB:
+USE my_database;
+Show all tables:
+SHOW TABLES;
+Describe a table (structure):
+DESCRIBE users;
+View all rows (contents):
+SELECT * FROM users;
+________________________________________
+🔹 PostgreSQL
+Connect (as postgres superuser):
+sudo -i -u postgres
+psql 
+Show all tables in current schema:
+\dt
+Show tables in a specific schema:
+\dt public.*
+Describe a table (structure):
+\d users
+View all rows (contents):
+SELECT * FROM users;
+________________________________________
+🔹 MongoDB
+Connect:
+mongosh
+Show all databases:
+show dbs
+Switch to a database:
+use my_database
+Show all collections (tables):
+show collections
+View all documents (contents):
+db.users.find()
+Pretty-print documents:
+db.users.find().pretty()
+________________________________________
+✅ Summary
+DBMS	Show Tables/Collections	Show Contents
+MySQL	SHOW TABLES;	SELECT * FROM table;
+PostgreSQL	\dt	SELECT * FROM table;
+MongoDB	show collections	db.collection.find()
+
+
+
+sudo systemctl enable --now mongod
+sudo systemctl status mongod --no-pager
+
+
+🟦 MySQL — Simple Hierarchy
+MySQL Server
+   └── Database
+          └── Tables
+                 └── Rows
+Example:
+bankappdb
+   ├── users
+   ├── transactions
+Here:
+👉 Database = Logical container
+👉 Tables live directly inside database
+So when you wrote:
+jdbc:mysql://localhost:3306/bankappdb
+You are connecting to:
+DATABASE → bankappdb
+________________________________________
+🟩 PostgreSQL — Extra Layer (Schema)
+Postgres adds one more level.
+PostgreSQL Server
+   └── Database
+          └── Schema
+                └── Tables
+Example:
+bankdb
+   ├── public.users
+   ├── auth.users
+   ├── payments.transactions
+Here:
+👉 Schema = Folder inside database
+👉 Used for:
+•	multi-team separation
+•	security boundaries
+•	microservices ownership
+💡 Default schema is:
+public
+So most beginners don’t notice schemas initially.
+________________________________________
+🟪 MongoDB — Totally Different Thinking
+MongoDB is NoSQL.
+MongoDB Server
+   └── Database
+         └── Collection
+               └── Documents (JSON)
+Example:
+bankappdb
+   ├── users (collection)
+   ├── transactions (collection)
+Instead of tables:
+collections
+Instead of rows:
+documents
+Example document:
+{
+  "name": "Aditya",
+  "balance": 5000
+}
+No fixed columns required.
+
+
+
+
+
+
+
